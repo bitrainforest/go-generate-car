@@ -29,6 +29,7 @@ type Result struct {
 	DataCid   string
 	PieceCid  string
 	PieceSize uint64
+	CarSize   uint64
 	CidMap    map[string]util.CidMapValue
 }
 
@@ -149,13 +150,21 @@ func main() {
 			if err != nil {
 				return err
 			}
-			err = os.Rename(outPath, path.Join(outDir, commCid.String()+".car"))
+
+			dest := path.Join(outDir, commCid.String()+".car")
+
+			err = os.Rename(outPath, dest)
+			if err != nil {
+				return err
+			}
+
+			fileinfo, err := os.Stat(dest)
 			if err != nil {
 				return err
 			}
 
 			if qnVal := os.Getenv("QINIU"); qnVal != "" {
-				err = util.UploadAndRemove(path.Join(outDir, commCid.String()+".car"), path.Join(outDir, commCid.String()+".car"))
+				err = util.UploadAndRemove(dest, dest)
 				if err != nil {
 					return err
 				}
@@ -167,6 +176,7 @@ func main() {
 				PieceCid:  commCid.String(),
 				PieceSize: pieceSize,
 				CidMap:    cidMap,
+				CarSize:   uint64(fileinfo.Size()),
 			})
 			if err != nil {
 				return err
