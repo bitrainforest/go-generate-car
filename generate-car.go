@@ -153,6 +153,14 @@ func main() {
 			if err != nil {
 				return err
 			}
+
+			if qnVal := os.Getenv("QINIU"); qnVal != "" {
+				err = util.UploadAndRemove(path.Join(outDir, commCid.String()+".car"), path.Join(outDir, commCid.String()+".car"))
+				if err != nil {
+					return err
+				}
+			}
+
 			output, err := json.Marshal(Result{
 				Ipld:      ipld,
 				DataCid:   cid,
